@@ -1,0 +1,36 @@
+name: build
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+  workflow_dispatch: {}
+permissions:
+  packages: write
+  id-token: write
+jobs:
+  build:
+    uses: GeoNet/Actions/.github/workflows/reusable-docker-build.yml@main
+    with:
+      context: .
+      dockerfile: ./Dockerfile
+      imageName: conform
+      platforms: linux/amd64
+      push: ${{ github.ref == 'refs/heads/main' }}
+      target: image-conform
+      buildArgs: |
+        TOOLCHAIN=ghcr.io/geonet/base-images/go:1.20
+        GOLANGCILINT_VERSION=v1.49.0
+        GOFUMPT_VERSION=v0.3.1
+        GO_VERSION=1.19
+        GOIMPORTS_VERSION=v0.1.12
+        PROTOBUF_GO_VERSION=1.28.1
+        GRPC_GO_VERSION=1.2.0
+        GRPC_GATEWAY_VERSION=2.11.3
+        VTPROTOBUF_VERSION=0.3.0
+        DEEPCOPY_VERSION=v0.5.5
+        TESTPKGS=./...
+        KRES_IMAGE=ghcr.io/siderolabs/kres:latest
+        SHA=${{ github.sha }}
+        TAG=${{ github.event.release.tag_name }}
+        VERSION_PKG=github.com/siderolabs/conform/internal/version
